@@ -23,6 +23,7 @@ while ($molecule ne 'e') {
     if ($previous_molecule ne $molecule) {
         $i++;
     }
+    print $previous_molecule, ' ', $molecule, "\n";
 }
 
 print $i, "\n";
@@ -37,15 +38,23 @@ sub replace_one {
     my $find = shift;
     my $replace = shift;
 
-    print $molecule, ' ', $find, ' ', $replace, "\n";
+    #print $molecule, ' ', $find, ' ', $replace, "\n";
 
     my @finds = $molecule =~ /($find)/g;
-    my $rand = get_random(scalar @finds);
+    my $rand = get_random(scalar @finds) + 1;
+    #print "Replace $rand\n";
 
     my @mols = split /$find/, $molecule;
     my $mols_size = scalar @mols;
 
-    print $molecule, ' ', $find, ' ', $replace, "\n";
+    while ($molecule =~ /$find/g) {
+        if (--$rand == 0) {
+            substr($molecule, $-[0], $+[0] - $-[0], $replace);
+            last;
+        }
+    }
 
-    return 'e';
+    #print $molecule, ' ', $find, ' ', $replace, "\n";
+
+    return $molecule;
 }
