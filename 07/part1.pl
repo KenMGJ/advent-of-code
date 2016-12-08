@@ -10,7 +10,7 @@ while (<>) {
 
     my $has_abba = 0;
     my @matches;
-    if (@matches = ( $_ =~ m/\[(\w+)\]/)) {
+    if (@matches = ( $_ =~ m/\[(\w+)\]/g)) {
         for my $match (@matches) {
             if (has_abba($match)) {
                 $has_abba = 1;
@@ -22,16 +22,20 @@ while (<>) {
 
     my $new_string = $_;
     for my $match (@matches) {
-        $new_string =~ s/\[${match}\]/ /g;
+        $new_string =~ s/(\[${match}\])+?/ /g;
     }
 
+    my $ok = 0;
+    my $found_here = '';
     for my $part (split ' ', $new_string) {
-        if (has_abba($part)) {
+        if (my $found = has_abba($part)) {
+                $found_here = $found;
+                $ok = 1;
                 $matches++;
                 next;
         }
     }
-
+    print $ok, ' ', join('|',@matches), ' ', $found_here, ' ', $_, "\t", $new_string, "\n";
 }
 
 print $matches, "\n";
@@ -43,9 +47,7 @@ sub has_abba {
     while ($i + 4 <= length($string)) {
         my @chars = split '', substr($string, $i, 4);
         if ($chars[0] ne $chars[1] && $chars[0] eq $chars[3] && $chars[1] eq $chars[2]) {
-            print $i, "\t", ($i + 4), "\t", join(', ', @chars), "\n";
-            print substr($string, $i, $i + 4), "\n";
-            return 1;
+            return substr($string, $i, 4);
         }
 
         $i++;
