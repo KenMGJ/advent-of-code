@@ -8,66 +8,48 @@ my $matches = 0;
 while (<>) {
     chomp;
 
-    my @strings = split /\[/;
-    my @abas;
-    my @hypernets;
+    my @hypernets = m/\[(\w+)\]/g;
 
-    for my $string (@strings) {
-        if ($string =~ /\]/) {
-            my @strung = split /\]/, $string;
-            push @abas, $strung[1];
-            push @hypernets, $strung[0];
-        }
-        else {
-            push @abas, $string;
-        }
+    $_ =~ s/\[(\w+)\]/ /g;
+
+    my @supernets = m/(\w+)/g;
+
+    my @reverse_abas;
+    for my $supernet (@supernets) {
+        push @reverse_abas, get_reverse_abas($supernet);
     }
 
-    my @found_abas;
-    for my $aba (@abas) {
-        my $has_aba = has_aba($aba);
-        push (@found_abas, $has_aba) if $has_aba;
-    }
-
-    my $aba_hash = {};
-    for my $found_aba (@found_abas) {
-        $aba_hash->{$found_aba} = 0;
-        my @chars = split '', $found_aba;
-        my $bab = $chars[1] . $chars[0] . $chars[1];
+    my $found = 0;
+    for my $reverse_aba (@reverse_abas) {
         for my $hypernet (@hypernets) {
-            if ($hypernet =~ /${bab}/) {
-                $aba_hash->{$found_aba} = 1;
+            my $length = length $hypernet;
+            for my $i (0 .. $length - 3) {
+                if ($reverse_aba eq substr($hypernet, $i, 3)) {
+                    $found = 1;
+                }
             }
         }
     }
-
-    my $found = 1;
-    for my $key (keys %$aba_hash) {
-        if ($aba_hash->{$key}) {
-        }
-        else {
-            $found = 0;
-            last;
-        }
-    }
-
-    $matches++ if ($found);
+    $matches++ if ($found == 1);
 }
 
 print $matches, "\n";
 
-sub has_aba {
+sub get_reverse_abas {
     my $string = shift;
+    my $length = length $string;
 
-    my $i = 0;
-    while ($i + 3 <= length($string)) {
-        my @chars = split '', substr($string, $i, 3);
-        if ($chars[0] eq $chars[2] && $chars[0] ne $chars[1]) {
-            return substr($string, $i, 3);
+    my @reverse_abas;
+
+    for my $i (0 .. $length - 3) {
+        my $first = substr($string, $i, 1);
+        my $second = substr($string, $i+1, 1);
+        my $third = substr($string, $i+2, 1);
+
+        if ($first eq $third && $first ne $second) {
+            push @reverse_abas, ($second . $first . $second);
         }
-
-        $i++;
     }
 
-    return 0;
+    return @reverse_abas;
 }
