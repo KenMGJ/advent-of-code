@@ -6,20 +6,25 @@ use warnings;
 while (<>) {
     chomp;
 
-    my $length = 0;
-    my $decompressed = '';
+    my $length = calculate_length($_);
+    print $length, "\n";
+}
 
-    my @chars = split '';
+sub calculate_length {
+
+    my $string = shift;
+    my @chars = split '', $string;
+
+    my $input_length = scalar @chars;
+    
+    my $calculated_length = 0;
 
     my $i = 0;
-    my $input_length = scalar @chars;
-
     while ($i < $input_length) {
 
         my $char = $chars[$i];
         if ($char ge 'A' && $char le 'Z') {
-            $decompressed .= $char;
-            $length += 1;
+            $calculated_length += 1;
         }
         elsif ($char eq '(') {
 
@@ -29,21 +34,16 @@ while (<>) {
             }
             my ($x, $y) = split 'x', $marker;
 
-            # print $marker, "\t", $x, "\t", $y, "\n";
-            
             my $repeating = '';
             for my $j (1 .. $x) {
                 $repeating .= $chars[$i + $j];
             }
-            $decompressed .= ($repeating x $y);
-          
-            $length += ($x * $y);
+
+            $calculated_length += (calculate_length($repeating) * $y);
             $i += $x;
 
         }
         $i++;
-
     }
-
-    print $_, "\n", $decompressed, "\t", $length, "\n";
+    return $calculated_length;
 }
