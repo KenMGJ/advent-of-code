@@ -5,7 +5,7 @@ use warnings;
 
 use Digest::MD5 qw( md5_hex );
 
-my $door_id = 'reyedfim';
+my $door_id = 'cxdnnyjw';
 my $password_length = 8;
 
 my $found = 0;
