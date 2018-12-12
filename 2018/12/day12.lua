@@ -15,10 +15,10 @@ do
     end
 end
 
-print( state )
-
 local current_index = 0
-for i = 1, 50000000000
+local max_iterations = 50000000000
+local i = 1
+while i <= max_iterations
 do
 
     local _state = state
@@ -43,7 +43,35 @@ do
         end
     end
 
-    state = _new
+    local idx = string.find( _new, "#" )
+    _new = string.sub( _new, idx )
+    current_index = idx + current_index - 1
+    _new = string.reverse( _new )
+    idx = string.find( _new, "#" )
+    _new = string.sub( _new, idx )
+    _new = string.reverse( _new )
+
+    if i == 20 then
+        print( "part 1", score )
+    end
+
+    if _new == state then
+        break
+    else
+        i = i + 1
+        state = _new
+    end
 end
 
-print( score )
+local diff = max_iterations - i
+local new_index = current_index + diff
+
+local new_score = 0
+for j = 1, string.len( state )
+do
+    if string.sub( state, j, j ) == '#' then
+        new_score = new_score + ( new_index + j - 1 )
+    end
+end
+
+print( "part 2", new_score )
