@@ -90,7 +90,7 @@ function print_map_with_carts()
 end
 
 local tick = 0
-local crash = false
+local one_left = false
 
 function get_index( y, x )
     return y .. "," .. x
@@ -115,11 +115,20 @@ end
 local found_y
 local found_x
 
-while not crash do
+function tablelength(T)
+    local count = 0
+    for _ in pairs(T) do count = count + 1 end
+    return count
+  end
+
+local cart_count = tablelength( carts )
+print( cart_count )
+
+while not one_left do
     new_carts = {}
 
     for y = 1, max_y do
-        if crash then break end
+        if one_left then break end
 
         for x = 1, max_x do
             local idx = get_index( y, x )
@@ -149,16 +158,15 @@ while not crash do
                 new_cart_direction( cart, new_y, new_x )
 
                 local next_index = get_index( new_y, new_x )
-                if carts[next_index] ~= nil or new_carts[next_index] ~= nil then
-                    crash = true
-                    found_y = new_y
-                    found_x = new_x
-                    break
+                if carts[next_index] ~= nil then
+                    carts[next_index] = nil
+                elseif new_carts[next_index] ~= nil then
+                    new_carts[next_index] = nil
                 else
                     carts[idx] = nil
                     new_carts[next_index] = cart
                 end
-            
+
             end
         end
     end
@@ -166,7 +174,20 @@ while not crash do
     tick = tick + 1
     carts = new_carts
 
+    local new_cart_count = tablelength( carts )
+    if new_cart_count ~= cart_count then
+        cart_count = new_cart_count
+        print( cart_count )
+    end
+    if new_cart_count == 1 then
+        one_left = true
+    end
+
 end
 
-print("ticks", tick)
-print("crash site", found_x - 1 .. "," .. found_y - 1 )
+for k, _ in pairs(carts) do
+    local comma = string.find( k, "," )
+    local row = tonumber(string.sub( k, comma + 1 )) - 1
+    local column = tonumber(string.sub( k , 0, comma - 1 )) - 1 
+    print( row .. "," .. column )
+end
