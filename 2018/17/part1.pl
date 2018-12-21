@@ -44,54 +44,35 @@ for my $y ($min_y .. $max_y) {
     }
 }
 
-my $count = 0;
-
-next_water_move( 500, 1 );
-print $count, "\n";
-
-for my $y ($min_y .. $max_y) {
-    printf('%02d ', $y);
-    for my $x ($min_x .. $max_x) {
-        print $grid[$y][$x];
+sub print_grid {
+    for my $y ($min_y .. $max_y) {
+        printf('%02d ', $y);
+        for my $x ($min_x .. $max_x) {
+            print $grid[$y][$x];
+        }
+        print "\n";
     }
-    print "\n";
 }
 
-sub next_water_move {
-    my ($x, $y) = @_;
-    print $y, ' ', $x, "\n";
+my $drop_count = 0;
 
-    # move down if possible
-    if ( $y < $max_y && $grid[$y + 1][$x] ne '#') {
-        $grid[$y][$x] = '|';
-        $count++;
-        next_water_move( $x, $y + 1 );
+while ($drop_count < 1) {
+
+    my $x = 500;
+    my $y = 0;
+
+    last if !can_drop_down($x, $y);
+    $drop_count++;
+
+    while (can_drop_down($x, $y)) {
+        $y++;
     }
 
-    my $will_settle = will_settle( $x, $y );
-    print $will_settle, "\n";
-
+    print $y;
 }
 
-sub will_settle {
+
+sub can_drop_down {
     my ($x, $y) = @_;
-
-    my $clay_on_left  = 0;
-    my $clay_on_right = 0;
-
-    for (my $i = $x - 1; $i >= $min_x; $i--) {
-        if ($grid[$y][$i] eq '#') {
-            $clay_on_left = 1;
-            last;
-        }
-    }
-
-    for (my $i = $x + 1; $i <= $max_x; $i++) {
-        if ($grid[$y][$i] eq '#') {
-            $clay_on_right = 1;
-            last;
-        }
-    }
-
-    return $clay_on_left && $clay_on_right;
+    return $y <= $max_y && $grid[$y+1][$x] eq '.';
 }
